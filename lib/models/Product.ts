@@ -5,6 +5,8 @@ const ProductSchema = new Schema({
     description : { type: String, required: true },
     price : { type: Number, required: true },
     category : { type: String, required: true, index : true },
+    rating : { type: Number, default: 0 },
+    review_count : { type: Number, default: 0 },
     tags : { type: [String], default: [], index: true },
     vector : { type: [Number], default: [] },
     vector_version : { type: Number, default: 1 }
@@ -24,6 +26,8 @@ export type ProductDoc = {
     price : number,
     category : string,
     tags : string[],
+    rating : number,
+    review_count : number,
     createdAt: Date,
     updatedAt: Date
 }
