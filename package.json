@@ -1,0 +1,23 @@
+{
+  "name": "bifrost-ecommerce",
+  "version": "1.0.0",
+  "description": "AI ecommerce",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npm-run-all --parallel dev:",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Estenvanos/Bifrost"
+  },
+  "author": "Estenvanos",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.1.5"
+  }
+}
