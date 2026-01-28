@@ -1,0 +1,18 @@
+{
+  "timestamp": "20260128T185909",
+  "files": [
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\controllers\\product.controller.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\007_20260128T185909\\product.controller.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\routes\\product.routes.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\007_20260128T185909\\product.routes.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\server.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\007_20260128T185909\\server.ts"
+    }
+  ],
+  "prompt": "build the basic crud for the product model being only possible to create a product as a user admin, make controller and route and the most clean code document possible following the goos manners as in my code base"
+}

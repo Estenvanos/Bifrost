@@ -1,6 +1,10 @@
-import { connectToDB, disconnectFromDB } from "./db/mongoose";
-import { User } from "./models/User";
-import { hashPassword } from "./utils/password.utils";
+import dotenv from "dotenv";
+// Load environment variables first
+dotenv.config();
+
+import { connectToDB, disconnectFromDB } from "../db/mongoose";
+import { User } from "../models/User";
+import { hashPassword } from "../utils/password.utils";
 
 const seedUsers = async () => {
   try {
