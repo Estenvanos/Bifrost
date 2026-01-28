@@ -1,0 +1,206 @@
+{
+  "server/controllers/auth.controller.ts": {
+    "hash": "f08ffb7ef93b21a0202bcf58a1b6a6f346b035d2e919eca0f91a62c0c548e23b",
+    "mtime": 1769624503.5902946,
+    "size": 9392,
+    "refined": true
+  },
+  "server/controllers/product.controller.ts": {
+    "hash": "575b82a3778233f1fc9670de2ddbee1eba17d5598d440e59e84e656722296c31",
+    "mtime": 1769627018.2216456,
+    "size": 7529,
+    "refined": true
+  },
+  "server/server.ts": {
+    "hash": "531306edb5d507ba07e371bae2e7ebb4f7f3b329d49c2c87051dc5e048c292fb",
+    "mtime": 1769627433.1974418,
+    "size": 2194,
+    "refined": true
+  },
+  "server/config/env.ts": {
+    "hash": "3183902ebf3dff447a00ebfc51728d7c85aed8aceed05f9fd707d775d47f9ad9",
+    "mtime": 1769544708.0809233,
+    "size": 543,
+    "refined": true
+  },
+  "server/db/mongoose.ts": {
+    "hash": "b79417998d924460b7be98bd1700bc23cebe4961806166abbf50ef83cec8eb03",
+    "mtime": 1769625436.5910301,
+    "size": 2398,
+    "refined": true
+  },
+  "server/middleware/rateLimit.middleware.ts": {
+    "hash": "63c2d1186103207bed61603f47f72a4cdab5d5011f7dc4a368c9c8bf0daedc1d",
+    "mtime": 1769605711.2403402,
+    "size": 1121,
+    "refined": true
+  },
+  "server/models/Cart.ts": {
+    "hash": "fcecd8150393b07227700fcf9498faac0a2ea53909b1c853eacd8ebf26b504a7",
+    "mtime": 1769196475.5559528,
+    "size": 447,
+    "refined": true
+  },
+  "server/db/verifyAdmin.ts": {
+    "hash": "148b43065009edecbea478d2cf9178269207ae45390d71d291bbeed1e8f36b60",
+    "mtime": 1769277337.6700068,
+    "size": 281,
+    "refined": true
+  },
+  "server/middleware/auth.middleware.ts": {
+    "hash": "6e529d4763aa3a003dc1ada6b62c0912aadf6f42f70d48ce130263c7922de41a",
+    "mtime": 1769624503.5902946,
+    "size": 2331,
+    "refined": true
+  },
+  "server/models/CartItem.ts": {
+    "hash": "0d06fc5868d6a57c258c707c690edf81ce355a4527d4a9ed9df7cbfaa66641cf",
+    "mtime": 1769196450.9122853,
+    "size": 656,
+    "refined": true
+  },
+  "server/models/Product.ts": {
+    "hash": "be24ba873cdcb1153ca91937aa078c758e1631a3e62c60af1e30d0b5d28957e8",
+    "mtime": 1768422859.2860506,
+    "size": 1152,
+    "refined": true
+  },
+  "server/models/Review.ts": {
+    "hash": "ced7ac1acff7a3dd66d0baa0e2300f102b1c767dc5ad7606a662e69b6d31eff7",
+    "mtime": 1769196758.079468,
+    "size": 554,
+    "refined": true
+  },
+  "server/models/Order.ts": {
+    "hash": "8fc1f57d3174784102a0785e24da97e9849e30d07c2fd45218a0ad918ff8e634",
+    "mtime": 1769200733.3207798,
+    "size": 1147,
+    "refined": true
+  },
+  "server/models/Company.ts": {
+    "hash": "f3c6cdc8e6044276ec80b3a68e1668ff4d01d08a19167e7f170d75562bb2b34a",
+    "mtime": 1768422827.4811785,
+    "size": 1045,
+    "refined": true
+  },
+  "server/models/User.ts": {
+    "hash": "b53a0c4e0bd6a21a550b7ea38a7a8df4387283a2f2af4c2af96c88fa34802ec6",
+    "mtime": 1769200964.4977665,
+    "size": 767,
+    "refined": true
+  },
+  "server/models/UserInteraction.ts": {
+    "hash": "4129bc4984283e84f10ce9b1a0424a1adf9b1e7947914b05f928e6c3107bf26b",
+    "mtime": 1769198179.758654,
+    "size": 647,
+    "refined": true
+  },
+  "server/models/Wished.ts": {
+    "hash": "6e41f66bf9be8070dd65a33f9808b1a2b7b3b2447f8d3925fb875247de564654",
+    "mtime": 1768411813.1577647,
+    "size": 428,
+    "refined": true
+  },
+  "server/routes/auth.routes.ts": {
+    "hash": "e1cf21dc84f35ebead3cdc7af89daf9f77c594892c1660e671b73ca292f3ce0b",
+    "mtime": 1769622775.4074461,
+    "size": 1320,
+    "refined": true
+  },
+  "server/routes/example.routes.ts": {
+    "hash": "27b4c1be1021989ff4c6af3522b99e92909cac44a2400b9b3f759f56a64e7519",
+    "mtime": 1769542935.7992418,
+    "size": 1284,
+    "refined": true
+  },
+  "server/routes/product.routes.ts": {
+    "hash": "6e3578249a5673f1670654c9b59ff133e4e351e6447e8597e8902bf4dd829f19",
+    "mtime": 1769626749.6137981,
+    "size": 1873,
+    "refined": true
+  },
+  "server/seed/product.seed.ts": {
+    "hash": "1106ef3ade445727e02843cf47c8753374b3859d95bdfee0cace81ec774e7f11",
+    "mtime": 1769627200.6122217,
+    "size": 8869,
+    "refined": true
+  },
+  "server/tests/auth-flow-cookies.test.ts": {
+    "hash": "4efa89b7c832cedf45cb8620f4563c0c27aca206a5a89f39de12210ac937b5b3",
+    "mtime": 1769624194.4246602,
+    "size": 10567,
+    "refined": true
+  },
+  "server/seed/user.seed.ts": {
+    "hash": "d270be816beb2b7786cc894ffa0a7ee537707bdbdf13c83d290e13ee30c0b577",
+    "mtime": 1769627016.0716057,
+    "size": 2982,
+    "refined": true
+  },
+  "server/schemas/userSchemas.ts": {
+    "hash": "76d773afb9e578505d3539621b6605e52cc462dc21649c99e743c8ca1e58e41e",
+    "mtime": 1769279204.7371535,
+    "size": 1049,
+    "refined": true
+  },
+  "server/tests/auth-flow.test.ts": {
+    "hash": "70f8e3e3cedc8eb869ba45714dec2690225001a76fe45099a7223cfde0fb3780",
+    "mtime": 1769622223.8263102,
+    "size": 6184,
+    "refined": true
+  },
+  "server/utils/generateToken.ts": {
+    "hash": "f9c75f791433892cdbb65b8f485341e7ef5ec87e401bb3d0f3fa1ec16de77e3e",
+    "mtime": 1769542239.750697,
+    "size": 496,
+    "refined": true
+  },
+  "server/utils/jwt.utils.ts": {
+    "hash": "987e90acf14bc448de2f66008bbd1ebc40cbfd34e521d249c458d5ac201c4228",
+    "mtime": 1769625436.5910301,
+    "size": 2354,
+    "refined": true
+  },
+  "server/utils/password.utils.ts": {
+    "hash": "fa21dec18451ac2646c2a3011dd401eb31d93d1892053713a6d6f3634a65f7d8",
+    "mtime": 1769542933.619424,
+    "size": 1298,
+    "refined": true
+  },
+  "server/tests/product-flow.test.ts": {
+    "hash": "98cb1fa160b080d1b2536bf203e3bf91a9d478cb464180f91d1d4c5e55e1ee19",
+    "mtime": 1769627200.6122217,
+    "size": 18043,
+    "refined": true
+  },
+  "server/utils/validation.utils.ts": {
+    "hash": "92b112dba516ff609371a0b7b967cd5ec056479ebd31743b117e5378964a74ab",
+    "mtime": 1769542932.4595432,
+    "size": 1535,
+    "refined": true
+  },
+  "package.json": {
+    "hash": "0edfd77b557c0ae688906f87c263ecc26cab53ffd65589081f8285905e6a7560",
+    "mtime": 1769610123.3585365,
+    "size": 650,
+    "refined": true
+  },
+  "server/package.json": {
+    "hash": "8aa25be102046dccb1db9ae2d17458dbf316a99b55e6358f2cd8ac502eb06def",
+    "mtime": 1769627200.6122217,
+    "size": 1195,
+    "refined": true
+  },
+  "package-lock.json": {
+    "hash": "cdabb624e7522effce756583607b1d35598aee47a26c10836049dc95e9287baa",
+    "mtime": 1769277548.399065,
+    "size": 40495,
+    "refined": true
+  },
+  "server/package-lock.json": {
+    "hash": "78724f1af5516e4cc4ebb5bbb188d7c2fbad3816f011262c6813ee84dba185d9",
+    "mtime": 1769605202.6115184,
+    "size": 76829,
+    "refined": true
+  }
+}
