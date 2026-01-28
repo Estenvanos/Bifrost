@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import mongoSanitize from "express-mongo-sanitize";
+import cookieParser from "cookie-parser";
 import { env } from "./config/env";
 import authRoutes from "./routes/auth.routes";
 import { apiLimiter } from "./middleware/rateLimit.middleware";
@@ -10,16 +10,15 @@ import { connectToDB } from "./db/mongoose";
 const app = express();
 
 // Configurações de segurança
-app.use(helmet()); // Headers de segurançac
+app.use(helmet()); // Headers de segurança
 app.use(cors({
   origin: env.corsOrigin,
-  credentials: true,
+  credentials: true, // IMPORTANT: Allow cookies to be sent
 }));
-app.use(express.json({ limit: "10mb" })); // Parse JSON
+app.use(express.json()); // Parse JSON
 app.use(express.urlencoded({ extended: true, limit: "10mb" })); // Parse URL-encoded
-app.use(mongoSanitize()); // Previne injeção NoSQL
+app.use(cookieParser()); // Parse cookies
 app.use(apiLimiter); // Rate limiting global
-
 
 // Rotas
 app.use("/api/auth", authRoutes);
@@ -52,13 +51,22 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // Inicia o servidor
 const startServer = async () => {
-  await connectToDB();
-  
-  app.listen(env.port, () => {
-    console.log(`🚀 Servidor rodando na porta ${env.port}`);
-    console.log(`📍 http://localhost:${env.port}`);
-  });
-};
+  try {
+    // Conecta ao MongoDB primeiro
+    await connectToDB();
+    
+    // Inicia o servidor Express
+    app.listen(env.port, () => {
+      console.log(`🚀 Servidor rodando na porta ${env.port}`);
+      console.log(`📍 http://localhost:${env.port}`);
+      console.log(`🌍 Ambiente: ${env.nodeEnv}`);
+      console.log(`🍪 Cookies habilitados para: ${env.corsOrigin}`);
+    });
+  } catch (error) {
+    console.error("❌ Falha ao iniciar servidor:", error);
+    process.exit(1);
+  }
+}
 
 startServer();
 

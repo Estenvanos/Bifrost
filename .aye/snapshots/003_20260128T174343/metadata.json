@@ -1,0 +1,10 @@
+{
+  "timestamp": "20260128T174343",
+  "files": [
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\tests\\auth-flow.test.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\003_20260128T174343\\auth-flow.test.ts"
+    }
+  ],
+  "prompt": "create a test folder and file to make a sign in and after a get me function with the acesstoken "
+}

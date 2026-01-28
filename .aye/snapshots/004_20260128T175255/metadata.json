@@ -1,0 +1,30 @@
+{
+  "timestamp": "20260128T175255",
+  "files": [
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\server.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\004_20260128T175255\\server.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\controllers\\auth.controller.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\004_20260128T175255\\auth.controller.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\middleware\\auth.middleware.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\004_20260128T175255\\auth.middleware.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\routes\\auth.routes.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\004_20260128T175255\\auth.routes.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\tests\\auth-flow-cookies.test.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\004_20260128T175255\\auth-flow-cookies.test.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\package.json",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\004_20260128T175255\\package.json"
+    }
+  ],
+  "prompt": "how after make to maintein the user logged and the accesstoken saved in cokkies or somewhere after the user sign in and sign up and use the get me function "
+}

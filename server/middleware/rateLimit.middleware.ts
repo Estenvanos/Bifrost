@@ -13,10 +13,6 @@ export const authLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  // Identifica por IP
-  keyGenerator: (req) => {
-    return req.ip || "unknown";
-  },
 });
 
 /**

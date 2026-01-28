@@ -4,6 +4,38 @@ import { hashPassword, comparePassword, validatePasswordStrength } from "../util
 import { validateEmail, validateUsername } from "../utils/validation.utils";
 import { generateTokenPair, verifyRefreshToken } from "../utils/jwt.utils";
 import { AuthRequest } from "../middleware/auth.middleware";
+import { env } from "../config/env";
+
+/**
+ * Set authentication cookies
+ */
+const setAuthCookies = (res: Response, accessToken: string, refreshToken: string) => {
+  const isProduction = env.nodeEnv === "production";
+  
+  // Access token cookie (7 days)
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true, // Cannot be accessed by JavaScript (XSS protection)
+    secure: isProduction, // Only sent over HTTPS in production
+    sameSite: "strict", // CSRF protection
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+  });
+
+  // Refresh token cookie (30 days)
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "strict",
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
+  });
+};
+
+/**
+ * Clear authentication cookies
+ */
+const clearAuthCookies = (res: Response) => {
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+};
 
 /**
  * Registra um novo usuário
@@ -83,6 +115,9 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       type: newUser.type,
     });
 
+    // Set cookies
+    setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+
     // Remove a senha da resposta
     const userResponse = {
       _id: newUser._id,
@@ -97,6 +132,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       message: "Usuário criado com sucesso",
       data: {
         user: userResponse,
+        // Still return tokens in body for compatibility with token-based clients
         ...tokens,
       },
     });
@@ -166,6 +202,9 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
       type: user.type,
     });
 
+    // Set cookies
+    setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+
     // Remove a senha da resposta
     const userResponse = {
       _id: user._id,
@@ -180,6 +219,7 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
       message: "Login realizado com sucesso",
       data: {
         user: userResponse,
+        // Still return tokens in body for compatibility with token-based clients
         ...tokens,
       },
     });
@@ -235,7 +275,8 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
  */
 export const refreshToken = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { refreshToken } = req.body;
+    // Check for refresh token in cookies first, then body
+    const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
     if (!refreshToken) {
       res.status(400).json({
@@ -266,6 +307,9 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
       type: user.type,
     });
 
+    // Set new cookies
+    setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+
     res.status(200).json({
       success: true,
       message: "Token atualizado com sucesso",
@@ -276,6 +320,26 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
     res.status(401).json({
       success: false,
       message: "Refresh token inválido ou expirado",
+    });
+  }
+};
+
+/**
+ * Faz logout do usuário (limpa cookies)
+ */
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    clearAuthCookies(res);
+
+    res.status(200).json({
+      success: true,
+      message: "Logout realizado com sucesso",
+    });
+  } catch (error) {
+    console.error("Erro no logout:", error);
+    res.status(500).json({
+      success: false,
+      message: "Erro ao fazer logout",
     });
   }
 };

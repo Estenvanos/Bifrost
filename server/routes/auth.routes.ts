@@ -5,6 +5,7 @@ import {
   getMe,
   refreshToken,
   changePassword,
+  logout,
 } from "../controllers/auth.controller";
 import { authenticate } from "../middleware/auth.middleware";
 import { authLimiter, signupLimiter } from "../middleware/rateLimit.middleware";
@@ -24,6 +25,13 @@ router.post("/signup", signupLimiter, signup);
  * @access  Public
  */
 router.post("/signin", authLimiter, signin);
+
+/**
+ * @route   POST /api/auth/logout
+ * @desc    Faz logout do usuário (limpa cookies)
+ * @access  Public
+ */
+router.post("/logout", logout);
 
 /**
  * @route   GET /api/auth/me

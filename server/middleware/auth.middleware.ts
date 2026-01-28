@@ -12,6 +12,7 @@ export interface AuthRequest extends Request {
 
 /**
  * Middleware que verifica se o usuário está autenticado
+ * First checks cookies, then falls back to Authorization header
  */
 export const authenticate = async (
   req: AuthRequest,
@@ -19,7 +20,13 @@ export const authenticate = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token = extractTokenFromHeader(req.headers.authorization);
+    // Try to get token from cookies first
+    let token = req.cookies?.accessToken;
+
+    // Fallback to Authorization header if no cookie
+    if (!token) {
+      token = extractTokenFromHeader(req.headers.authorization);
+    }
 
     if (!token) {
       res.status(401).json({
@@ -83,7 +90,13 @@ export const optionalAuthenticate = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token = extractTokenFromHeader(req.headers.authorization);
+    // Try cookies first
+    let token = req.cookies?.accessToken;
+
+    // Fallback to header
+    if (!token) {
+      token = extractTokenFromHeader(req.headers.authorization);
+    }
 
     if (token) {
       const decoded = verifyAccessToken(token);
