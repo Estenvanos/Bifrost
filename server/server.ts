@@ -1,17 +1,25 @@
+import dotenv from "dotenv";
+// Load environment variables FIRST before any other imports
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import { env } from "./config/env";
 import authRoutes from "./routes/auth.routes";
 import { apiLimiter } from "./middleware/rateLimit.middleware";
 import { connectToDB } from "./db/mongoose";
 
 const app = express();
 
+// Get environment variables with defaults
+const PORT = process.env.PORT || 4000;
+const NODE_ENV = process.env.NODE_ENV || "development";
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:3000";
+
 // Configurações de segurança
 app.use(helmet()); // Headers de segurança
 app.use(cors({
-  origin: env.corsOrigin,
+  origin: CORS_ORIGIN,
 }));
 app.use(express.json()); // Parse JSON
 app.use(express.urlencoded({ extended: true, limit: "10mb" })); // Parse URL-encoded
@@ -53,10 +61,10 @@ const startServer = async () => {
     await connectToDB();
     
     // Inicia o servidor Express
-    app.listen(env.port, () => {
-      console.log(`🚀 Servidor rodando na porta ${env.port}`);
-      console.log(`📍 http://localhost:${env.port}`);
-      console.log(`🌍 Ambiente: ${env.nodeEnv}`);
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor rodando na porta ${PORT}`);
+      console.log(`📍 http://localhost:${PORT}`);
+      console.log(`🌍 Ambiente: ${NODE_ENV}`);
       console.log(`🔐 Autenticação via Authorization header`);
     });
   } catch (error) {

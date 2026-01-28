@@ -1,0 +1,26 @@
+{
+  "timestamp": "20260128T183716",
+  "files": [
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\server.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\006_20260128T183716\\server.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\db\\mongoose.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\006_20260128T183716\\mongoose.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\utils\\jwt.utils.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\006_20260128T183716\\jwt.utils.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\seed.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\006_20260128T183716\\seed.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.env.example",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\006_20260128T183716\\.env.example"
+    }
+  ],
+  "prompt": "i receive notifications sayning my mongo uri is leaked delete the env.file and make use process.env in every used config the dotenv in server.ts if need it "
+}
