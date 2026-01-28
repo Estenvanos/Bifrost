@@ -9,14 +9,13 @@
     "lint": "eslint . --ext .ts",
     "seed": "tsx seed.ts",
     "test": "jest",
-    "test:cookies": "tsx tests/auth-flow-cookies.test.ts"
+    "test:auth": "tsx tests/auth-flow.test.ts"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
@@ -31,7 +30,6 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
-    "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",

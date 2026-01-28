@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import cookieParser from "cookie-parser";
 import { env } from "./config/env";
 import authRoutes from "./routes/auth.routes";
 import { apiLimiter } from "./middleware/rateLimit.middleware";
@@ -13,11 +12,9 @@ const app = express();
 app.use(helmet()); // Headers de segurança
 app.use(cors({
   origin: env.corsOrigin,
-  credentials: true, // IMPORTANT: Allow cookies to be sent
 }));
 app.use(express.json()); // Parse JSON
 app.use(express.urlencoded({ extended: true, limit: "10mb" })); // Parse URL-encoded
-app.use(cookieParser()); // Parse cookies
 app.use(apiLimiter); // Rate limiting global
 
 // Rotas
@@ -60,7 +57,7 @@ const startServer = async () => {
       console.log(`🚀 Servidor rodando na porta ${env.port}`);
       console.log(`📍 http://localhost:${env.port}`);
       console.log(`🌍 Ambiente: ${env.nodeEnv}`);
-      console.log(`🍪 Cookies habilitados para: ${env.corsOrigin}`);
+      console.log(`🔐 Autenticação via Authorization header`);
     });
   } catch (error) {
     console.error("❌ Falha ao iniciar servidor:", error);

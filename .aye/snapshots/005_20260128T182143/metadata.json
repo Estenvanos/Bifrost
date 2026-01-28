@@ -1,0 +1,22 @@
+{
+  "timestamp": "20260128T182143",
+  "files": [
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\server.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\005_20260128T182143\\server.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\controllers\\auth.controller.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\005_20260128T182143\\auth.controller.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\middleware\\auth.middleware.ts",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\005_20260128T182143\\auth.middleware.ts"
+    },
+    {
+      "original": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\server\\package.json",
+      "snapshot": "C:\\Users\\peghe\\Documents\\projects\\bifrost-ecommerce\\.aye\\snapshots\\005_20260128T182143\\package.json"
+    }
+  ],
+  "prompt": "remove all logic of the use of cokkies to get acess token and knowleaged of the user logged maintein only in the header"
+}
