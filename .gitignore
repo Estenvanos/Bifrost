@@ -1,0 +1,5 @@
+# Ignorar banco/cache local
+.aye/
+
+# Ignorar variáveis de ambiente do backend
+server/.env
