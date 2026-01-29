@@ -73,7 +73,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       username: usernameValidation.sanitized,
       email: emailValidation.sanitized,
       password: hashedPassword,
-      type: type === "admin" ? "admin" : "customer", // Por padrão é customer
+      type: type === "owner" ? "owner" : "customer", // Por padrão é customer
     });
 
     // Gera tokens

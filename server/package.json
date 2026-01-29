@@ -9,9 +9,13 @@
     "lint": "eslint . --ext .ts",
     "seed": "tsx seed/user.seed.ts",
     "seed:products": "tsx seed/product.seed.ts",
+    "seed:companies": "tsx seed/company.seed.ts",
+    "seed:integrated": "tsx seed/integrated.seed.ts",
     "test": "jest",
     "test:auth": "tsx tests/auth-flow.test.ts",
-    "test:products": "tsx tests/product-flow.test.ts"
+    "test:products": "tsx tests/product-flow.test.ts",
+    "test:companies": "tsx tests/company-flow.test.ts",
+    "test:ownership": "tsx tests/ownership-flow.test.ts"
   },
   "author": "",
   "license": "ISC",

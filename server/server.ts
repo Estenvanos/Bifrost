@@ -7,6 +7,7 @@ import cors from "cors";
 import helmet from "helmet";
 import authRoutes from "./routes/auth.routes";
 import productRoutes from "./routes/product.routes";
+import companyRoutes from "./routes/company.routes";
 import { apiLimiter } from "./middleware/rateLimit.middleware";
 import { connectToDB } from "./db/mongoose";
 
@@ -29,6 +30,7 @@ app.use(apiLimiter); // Rate limiting global
 // Rotas
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/companies", companyRoutes);
 
 // Rota de health check
 app.get("/health", (req, res) => {

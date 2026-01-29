@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { extractTokenFromHeader, verifyAccessToken } from "../utils/jwt.utils" ;
+import { extractTokenFromHeader, verifyAccessToken } from "../utils/jwt.utils";
 
 // Extende o tipo Request do Express para incluir dados do usuário
 export interface AuthRequest extends Request {
   user?: {
     userId: string;
     email: string;
-    type: "customer" | "admin";
+    type: "customer" | "admin" | "owner";
   };
 }
 
@@ -49,7 +49,8 @@ export const authenticate = async (
 };
 
 /**
- * Middleware que verifica se o usuário é admin
+ * Middleware que verifica se o usuário é admin ou owner
+ * Admin e owner agora são equivalentes - ambos podem gerenciar empresas
  */
 export const requireAdmin = async (
   req: AuthRequest,
@@ -64,7 +65,8 @@ export const requireAdmin = async (
     return;
   }
 
-  if (req.user.type !== "admin") {
+  // Aceita tanto admin quanto owner
+  if (req.user.type !== "admin" && req.user.type !== "owner") {
     res.status(403).json({
       success: false,
       message: "Acesso negado. Apenas administradores podem acessar este recurso",

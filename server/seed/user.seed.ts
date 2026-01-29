@@ -39,13 +39,13 @@ const seedUsers = async () => {
         username: "admin_user",
         email: "admin@admin.com",
         password: adminPassword,
-        type: "admin",
+        type: "owner",
       },
       {
         username: "super_admin",
         email: "super@admin.com",
         password: adminPassword,
-        type: "admin",
+        type: "owner",
       },
       {
         username: "test_user",

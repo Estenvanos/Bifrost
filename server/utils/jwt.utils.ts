@@ -3,7 +3,7 @@ import jwt, { SignOptions } from "jsonwebtoken";
 interface JWTPayload {
   userId: string;
   email: string;
-  type: "customer" | "admin";
+  type: "customer" | "admin" | "owner";
 }
 
 interface TokenPair {

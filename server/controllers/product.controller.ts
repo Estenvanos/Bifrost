@@ -1,31 +1,54 @@
 import { Response } from "express";
 import { Product, ProductDoc } from "../models/Product";
+import { User } from "../models/User";
 import { AuthRequest } from "../middleware/auth.middleware";
 import mongoose from "mongoose";
 
 /**
- * Cria um novo produto (apenas admin)
+ * Cria um novo produto
+ * Apenas admins com company_id podem criar produtos
+ * Produtos são automaticamente vinculados à empresa do usuário
  */
 export const createProduct = async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const {
-      product_name,
-      company_id,
-      description,
-      image_url,
-      price,
-      category,
-      tags,
-    } = req.body;
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        message: "Usuário não autenticado",
+      });
+      return;
+    }
+
+    // Busca o usuário para pegar o company_id
+    const user = await User.findById(req.user.userId);
+    
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: "Usuário não encontrado",
+      });
+      return;
+    }
+
+    // Verifica se o usuário tem uma empresa vinculada
+    if (!user.company_id) {
+      res.status(403).json({
+        success: false,
+        message: "Você precisa estar vinculado a uma empresa para criar produtos",
+      });
+      return;
+    }
+
+    const { product_name, description, image_url, price, category, tags } = req.body;
 
     // Validação de campos obrigatórios
-    if (!product_name || !company_id || !description || !price || !category) {
+    if (!product_name || !description || !price || !category) {
       res.status(400).json({
         success: false,
-        message: "Campos obrigatórios: product_name, company_id, description, price, category",
+        message: "Campos obrigatórios: product_name, description, price, category",
       });
       return;
     }
@@ -39,19 +62,10 @@ export const createProduct = async (
       return;
     }
 
-    // Valida se company_id é um ObjectId válido
-    if (!mongoose.Types.ObjectId.isValid(company_id)) {
-      res.status(400).json({
-        success: false,
-        message: "company_id inválido",
-      });
-      return;
-    }
-
-    // Cria o produto
+    // Cria o produto com o company_id do usuário
     const newProduct = await Product.create({
       product_name: product_name.trim(),
-      company_id,
+      company_id: user.company_id.toString(),
       description: description.trim(),
       image_url: image_url?.trim() || undefined,
       price,
@@ -79,6 +93,7 @@ export const createProduct = async (
 
 /**
  * Busca todos os produtos com paginação e filtros
+ * Acesso público
  */
 export const getAllProducts = async (
   req: AuthRequest,
@@ -92,6 +107,7 @@ export const getAllProducts = async (
       tags,
       minPrice,
       maxPrice,
+      company_id,
     } = req.query;
 
     const pageNum = parseInt(page as string);
@@ -113,6 +129,10 @@ export const getAllProducts = async (
       filter.price = {};
       if (minPrice) filter.price.$gte = parseFloat(minPrice as string);
       if (maxPrice) filter.price.$lte = parseFloat(maxPrice as string);
+    }
+
+    if (company_id) {
+      filter.company_id = company_id;
     }
 
     // Busca os produtos
@@ -146,6 +166,7 @@ export const getAllProducts = async (
 
 /**
  * Busca um produto por ID
+ * Acesso público
  */
 export const getProductById = async (
   req: AuthRequest,
@@ -153,7 +174,6 @@ export const getProductById = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-
     const parsedId: string = Array.isArray(id) ? id[0] : id;
 
     // Valida se o ID é válido
@@ -165,7 +185,7 @@ export const getProductById = async (
       return;
     }
 
-    const product = await Product.findById(id);
+    const product = await Product.findById(parsedId);
 
     if (!product) {
       res.status(404).json({
@@ -191,17 +211,26 @@ export const getProductById = async (
 };
 
 /**
- * Atualiza um produto (apenas admin)
+ * Atualiza um produto
+ * Apenas admin da mesma empresa pode atualizar
  */
 export const updateProduct = async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        message: "Usuário não autenticado",
+      });
+      return;
+    }
+
     const { id } = req.params;
+    const parsedId: string = Array.isArray(id) ? id[0] : id;
     const updateData = req.body;
 
-    const parsedId: string = Array.isArray(id) ? id[0] : id;
     // Valida se o ID é válido
     if (!mongoose.Types.ObjectId.isValid(parsedId)) {
       res.status(400).json({
@@ -211,8 +240,40 @@ export const updateProduct = async (
       return;
     }
 
-    // Remove campos que não devem ser atualizados diretamente
+    // Busca o usuário para verificar company_id
+    const user = await User.findById(req.user.userId);
+    
+    if (!user || !user.company_id) {
+      res.status(403).json({
+        success: false,
+        message: "Você não está vinculado a nenhuma empresa",
+      });
+      return;
+    }
+
+    // Busca o produto
+    const product = await Product.findById(parsedId);
+
+    if (!product) {
+      res.status(404).json({
+        success: false,
+        message: "Produto não encontrado",
+      });
+      return;
+    }
+
+    // Verifica se o produto pertence à empresa do usuário (FIX: convert to strings)
+    if (product.company_id !== user.company_id.toString()) {
+      res.status(403).json({
+        success: false,
+        message: "Você só pode atualizar produtos da sua própria empresa",
+      });
+      return;
+    }
+
+    // Remove campos que não devem ser atualizados
     delete updateData._id;
+    delete updateData.company_id; // Não permite trocar de empresa
     delete updateData.createdAt;
     delete updateData.updatedAt;
     delete updateData.rating;
@@ -230,32 +291,17 @@ export const updateProduct = async (
     }
 
     // Sanitiza strings
-    if (updateData.product_name) {
-      updateData.product_name = updateData.product_name.trim();
-    }
-    if (updateData.description) {
-      updateData.description = updateData.description.trim();
-    }
-    if (updateData.category) {
-      updateData.category = updateData.category.trim();
-    }
-    if (updateData.image_url) {
-      updateData.image_url = updateData.image_url.trim();
-    }
+    if (updateData.product_name) updateData.product_name = updateData.product_name.trim();
+    if (updateData.description) updateData.description = updateData.description.trim();
+    if (updateData.category) updateData.category = updateData.category.trim();
+    if (updateData.image_url) updateData.image_url = updateData.image_url.trim();
 
+    // FIX: Use findByIdAndUpdate instead of updateOne
     const updatedProduct = await Product.findByIdAndUpdate(
-      id,
+      parsedId,
       { $set: updateData },
       { new: true, runValidators: true }
     );
-
-    if (!updatedProduct) {
-      res.status(404).json({
-        success: false,
-        message: "Produto não encontrado",
-      });
-      return;
-    }
 
     res.status(200).json({
       success: true,
@@ -274,14 +320,23 @@ export const updateProduct = async (
 };
 
 /**
- * Deleta um produto (apenas admin)
+ * Deleta um produto
+ * Apenas admin da mesma empresa pode deletar
  */
 export const deleteProduct = async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        message: "Usuário não autenticado",
+      });
+      return;
+    }
+
+    const { id } = req.params;
     const parsedId: string = Array.isArray(id) ? id[0] : id;
 
     // Valida se o ID é válido
@@ -293,9 +348,21 @@ export const deleteProduct = async (
       return;
     }
 
-    const deletedProduct = await Product.findByIdAndDelete(id);
+    // Busca o usuário para verificar company_id
+    const user = await User.findById(req.user.userId);
+    
+    if (!user || !user.company_id) {
+      res.status(403).json({
+        success: false,
+        message: "Você não está vinculado a nenhuma empresa",
+      });
+      return;
+    }
 
-    if (!deletedProduct) {
+    // Busca o produto
+    const product = await Product.findById(parsedId);
+
+    if (!product) {
       res.status(404).json({
         success: false,
         message: "Produto não encontrado",
@@ -303,11 +370,22 @@ export const deleteProduct = async (
       return;
     }
 
+    // Verifica se o produto pertence à empresa do usuário (FIX: convert to strings)
+    if (product.company_id !== user.company_id.toString()) {
+      res.status(403).json({
+        success: false,
+        message: "Você só pode deletar produtos da sua própria empresa",
+      });
+      return;
+    }
+
+    await Product.findByIdAndDelete(parsedId);
+
     res.status(200).json({
       success: true,
       message: "Produto deletado com sucesso",
       data: {
-        product: deletedProduct,
+        product,
       },
     });
   } catch (error) {

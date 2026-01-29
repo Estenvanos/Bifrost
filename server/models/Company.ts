@@ -4,6 +4,7 @@ import { model, models, Schema} from "mongoose";
 const CompanySchema = new Schema(
   {
     company_name: { type: String, required: true, trim: true, index: true },
+    owner_user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
     description: { type: String, required: true, trim: true },
     website_url: { type: String, trim: true },
     logo_url: { type: String, trim: true },
@@ -20,6 +21,7 @@ CompanySchema.index({ contact_email: 1 }, { unique: true });
 export type CompanyDoc = {
   _id: string;
   company_name: string;
+  owner_user_id: string;
   description: string;
   website_url?: string;
   logo_url?: string;
