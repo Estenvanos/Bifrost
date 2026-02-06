@@ -24,9 +24,8 @@ interface SignInResponse {
   data: {
     user: {
       _id: string;
-      username: string;
       email: string;
-      type: string;
+      role: string;
       createdAt: string;
     };
     accessToken: string;
@@ -39,9 +38,8 @@ interface GetMeResponse {
   data: {
     user: {
       _id: string;
-      username: string;
       email: string;
-      type: string;
+      role: string;
       createdAt: string;
       updatedAt: string;
     };
@@ -71,9 +69,8 @@ async function testSignIn(): Promise<string> {
     console.log(`Message: ${data.message}`);
     console.log(`\nUser Data:`);
     console.log(`  ID: ${data.data.user._id}`);
-    console.log(`  Username: ${data.data.user.username}`);
     console.log(`  Email: ${data.data.user.email}`);
-    console.log(`  Type: ${data.data.user.type}`);
+    console.log(`  Role: ${data.data.user.role}`);
     console.log(`\nAccess Token: ${data.data.accessToken.substring(0, 50)}...`);
 
     if (!response.ok || !data.success) {
@@ -110,9 +107,8 @@ async function testGetMe(accessToken: string): Promise<void> {
     console.log(`Success: ${data.success}`);
     console.log(`\nUser Data:`);
     console.log(`  ID: ${data.data.user._id}`);
-    console.log(`  Username: ${data.data.user.username}`);
     console.log(`  Email: ${data.data.user.email}`);
-    console.log(`  Type: ${data.data.user.type}`);
+    console.log(`  Role: ${data.data.user.role}`);
     console.log(`  Created: ${new Date(data.data.user.createdAt).toLocaleString()}`);
     console.log(`  Updated: ${new Date(data.data.user.updatedAt).toLocaleString()}`);
 

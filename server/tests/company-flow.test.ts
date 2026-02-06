@@ -60,7 +60,7 @@ let newUserToken: string;
  */
 async function signInAsCustomer(): Promise<string> {
   console.log("\n🔐 Signing in as Customer...");
-  
+
   const response = await fetch(`${BASE_URL}/api/auth/signin`, {
     method: "POST",
     headers: {
@@ -70,7 +70,7 @@ async function signInAsCustomer(): Promise<string> {
   });
 
   const data: SignInResponse = await response.json();
-  
+
   if (!response.ok || !data.success) {
     throw new Error(`Customer sign in failed: ${data.message || response.statusText}`);
   }
@@ -84,7 +84,7 @@ async function signInAsCustomer(): Promise<string> {
  */
 async function signInAsAdmin(): Promise<string> {
   console.log("\n🔐 Signing in as Admin...");
-  
+
   const response = await fetch(`${BASE_URL}/api/auth/signin`, {
     method: "POST",
     headers: {
@@ -94,7 +94,7 @@ async function signInAsAdmin(): Promise<string> {
   });
 
   const data: SignInResponse = await response.json();
-  
+
   if (!response.ok || !data.success) {
     throw new Error(`Admin sign in failed: ${data.message || response.statusText}`);
   }
@@ -111,10 +111,9 @@ async function testCreateCompanyWithUser(): Promise<void> {
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
   const newCompany = {
-    company_name: "Test Corp With User",
+    name: "Test Corp With User",
     description: "Company created by logged customer (will become admin)",
     contact_email: "test@testcorp.com",
-    website_url: "https://testcorp.com",
     phone_number: "+1-555-TEST",
     address: "123 Test Street",
   };
@@ -134,19 +133,18 @@ async function testCreateCompanyWithUser(): Promise<void> {
     console.log(`Status: ${response.status}`);
     console.log(`Success: ${data.success}`);
     console.log(`Message: ${data.message}`);
-    
+
     if (data.data?.company) {
       console.log(`\nCompany Created:`);
       console.log(`  ID: ${data.data.company._id}`);
-      console.log(`  Name: ${data.data.company.company_name}`);
-      console.log(`  Email: ${data.data.company.contact_email}`);
-      
+      console.log(`  Name: ${data.data.company.name}`);
+      console.log(`  Email: ${data.data.company.email}`);
+
       testCompanyId = data.data.company._id;
     }
 
     if (data.data?.user) {
       console.log(`\nUser Status:`);
-      console.log(`  Type: ${data.data.user.type}`);
       console.log(`  Was Promoted: ${data.data.user.wasPromotedToAdmin ? 'Yes' : 'No'}`);
     }
 
@@ -171,11 +169,11 @@ async function testCreateCompanyWithoutUser(): Promise<void> {
   const newCompanyWithUser = {
     email: "newadmin@testcompany.com",
     password: "NewAdmin@123",
-    username: "test_company_admin",
-    company_name: "Test Company With New User",
+    firstName: "Test",
+    lastName: "Admin",
+    name: "Test Company With New User",
     description: "Company that creates its own admin user",
     contact_email: "contact@testcompany.com",
-    website_url: "https://testcompany.com",
   };
 
   try {
@@ -192,25 +190,25 @@ async function testCreateCompanyWithoutUser(): Promise<void> {
     console.log(`Status: ${response.status}`);
     console.log(`Success: ${data.success}`);
     console.log(`Message: ${data.message}`);
-    
+
     if (data.data?.company) {
       console.log(`\nCompany Created:`);
       console.log(`  ID: ${data.data.company._id}`);
-      console.log(`  Name: ${data.data.company.company_name}`);
+      console.log(`  Name: ${data.data.company.name}`);
     }
 
     if (data.data?.user) {
       console.log(`\nNew Admin User Created:`);
       console.log(`  Email: ${data.data.user.email}`);
-      console.log(`  Username: ${data.data.user.username}`);
-      console.log(`  Type: ${data.data.user.type}`);
+      console.log(`  First Name: ${data.data.user.firstName}`);
+      console.log(`  Role: ${data.data.user.role}`);
     }
 
     if (data.data?.accessToken) {
       console.log(`\nTokens Generated:`);
       console.log(`  Access Token: ${data.data.accessToken.substring(0, 20)}...`);
       console.log(`  Refresh Token: ${data.data.refreshToken?.substring(0, 20)}...`);
-      
+
       newUserToken = data.data.accessToken;
     }
 
@@ -238,15 +236,15 @@ async function testGetAllCompanies(): Promise<void> {
 
     console.log(`Status: ${response.status}`);
     console.log(`Success: ${data.success}`);
-    
+
     if (data.data?.companies) {
       console.log(`\nCompanies found: ${data.data.companies.length}`);
       console.log(`Pagination:`, data.data.pagination);
-      
+
       if (data.data.companies.length > 0) {
         console.log(`\nFirst company:`);
-        console.log(`  Name: ${data.data.companies[0].company_name}`);
-        console.log(`  Email: ${data.data.companies[0].contact_email}`);
+        console.log(`  Name: ${data.data.companies[0].name}`);
+        console.log(`  Email: ${data.data.companies[0].email}`);
       }
     }
 
@@ -274,13 +272,13 @@ async function testGetSingleCompany(): Promise<void> {
 
     console.log(`Status: ${response.status}`);
     console.log(`Success: ${data.success}`);
-    
+
     if (data.data?.company) {
       console.log(`\nCompany Details:`);
       console.log(`  ID: ${data.data.company._id}`);
-      console.log(`  Name: ${data.data.company.company_name}`);
+      console.log(`  Name: ${data.data.company.name}`);
       console.log(`  Description: ${data.data.company.description}`);
-      console.log(`  Email: ${data.data.company.contact_email}`);
+      console.log(`  Email: ${data.data.company.email}`);
     }
 
     if (!response.ok || !data.success) {
@@ -303,7 +301,7 @@ async function testUpdateCompany(): Promise<void> {
 
   const updates = {
     description: "Updated description from automated test",
-    is_active: true,
+    status: "active",
   };
 
   try {
@@ -321,11 +319,11 @@ async function testUpdateCompany(): Promise<void> {
     console.log(`Status: ${response.status}`);
     console.log(`Success: ${data.success}`);
     console.log(`Message: ${data.message}`);
-    
+
     if (data.data?.company) {
       console.log(`\nUpdated Company:`);
       console.log(`  Description: ${data.data.company.description}`);
-      console.log(`  Active: ${data.data.company.is_active}`);
+      console.log(`  Status: ${data.data.company.status}`);
     }
 
     if (!response.ok || !data.success) {

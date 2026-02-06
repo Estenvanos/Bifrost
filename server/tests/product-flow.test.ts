@@ -57,7 +57,7 @@ let testCompanyId: string = "507f1f77bcf86cd799439011"; // Placeholder company I
  */
 async function signInAsAdmin(): Promise<string> {
   console.log("\n🔐 Signing in as Admin...");
-  
+
   const response = await fetch(`${BASE_URL}/api/auth/signin`, {
     method: "POST",
     headers: {
@@ -67,7 +67,7 @@ async function signInAsAdmin(): Promise<string> {
   });
 
   const data: SignInResponse = await response.json();
-  
+
   if (!response.ok || !data.success) {
     throw new Error(`Admin sign in failed: ${data.message || response.statusText}`);
   }
@@ -81,7 +81,7 @@ async function signInAsAdmin(): Promise<string> {
  */
 async function signInAsCustomer(): Promise<string> {
   console.log("\n🔐 Signing in as Customer...");
-  
+
   const response = await fetch(`${BASE_URL}/api/auth/signin`, {
     method: "POST",
     headers: {
@@ -91,7 +91,7 @@ async function signInAsCustomer(): Promise<string> {
   });
 
   const data: SignInResponse = await response.json();
-  
+
   if (!response.ok || !data.success) {
     throw new Error(`Customer sign in failed: ${data.message || response.statusText}`);
   }
@@ -108,13 +108,13 @@ async function testCreateProduct(): Promise<void> {
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
   const newProduct = {
-    product_name: "Test Product - Galaxy Phone",
-    company_id: testCompanyId,
+    name: "Test Product - Galaxy Phone",
+    companyId: testCompanyId,
     description: "Test description for automated testing",
     price: 99.99,
     category: "electronics",
     tags: ["test", "phone", "electronics"],
-    image_url: "https://example.com/test.jpg",
+    images: [{ url: "https://example.com/test.jpg", isPrimary: true }],
   };
 
   try {
@@ -132,14 +132,14 @@ async function testCreateProduct(): Promise<void> {
     console.log(`Status: ${response.status}`);
     console.log(`Success: ${data.success}`);
     console.log(`Message: ${data.message}`);
-    
+
     if (data.data?.product) {
       console.log(`\nProduct Created:`);
       console.log(`  ID: ${data.data.product._id}`);
-      console.log(`  Name: ${data.data.product.product_name}`);
+      console.log(`  Name: ${data.data.product.name}`);
       console.log(`  Price: $${data.data.product.price}`);
       console.log(`  Category: ${data.data.product.category}`);
-      
+
       testProductId = data.data.product._id;
     }
 
@@ -162,8 +162,8 @@ async function testCreateProductWithoutAuth(): Promise<void> {
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
   const newProduct = {
-    product_name: "Unauthorized Product",
-    company_id: testCompanyId,
+    name: "Unauthorized Product",
+    companyId: testCompanyId,
     description: "Should not be created",
     price: 99.99,
     category: "electronics",
@@ -208,14 +208,14 @@ async function testGetAllProducts(): Promise<void> {
 
     console.log(`Status: ${response.status}`);
     console.log(`Success: ${data.success}`);
-    
+
     if (data.data?.products) {
       console.log(`\nProducts found: ${data.data.products.length}`);
       console.log(`Pagination:`, data.data.pagination);
-      
+
       if (data.data.products.length > 0) {
         console.log(`\nFirst product:`);
-        console.log(`  Name: ${data.data.products[0].product_name}`);
+        console.log(`  Name: ${data.data.products[0].name}`);
         console.log(`  Price: $${data.data.products[0].price}`);
       }
     }
@@ -296,11 +296,11 @@ async function testGetSingleProduct(): Promise<void> {
 
     console.log(`Status: ${response.status}`);
     console.log(`Success: ${data.success}`);
-    
+
     if (data.data?.product) {
       console.log(`\nProduct Details:`);
       console.log(`  ID: ${data.data.product._id}`);
-      console.log(`  Name: ${data.data.product.product_name}`);
+      console.log(`  Name: ${data.data.product.name}`);
       console.log(`  Price: $${data.data.product.price}`);
       console.log(`  Category: ${data.data.product.category}`);
       console.log(`  Tags: ${data.data.product.tags.join(", ")}`);
@@ -372,7 +372,7 @@ async function testUpdateProduct(): Promise<void> {
     console.log(`Status: ${response.status}`);
     console.log(`Success: ${data.success}`);
     console.log(`Message: ${data.message}`);
-    
+
     if (data.data?.product) {
       console.log(`\nUpdated Product:`);
       console.log(`  ID: ${data.data.product._id}`);
@@ -469,8 +469,8 @@ async function testCreateProductAsCustomer(): Promise<void> {
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
   const newProduct = {
-    product_name: "Unauthorized Product",
-    company_id: testCompanyId,
+    name: "Unauthorized Product",
+    companyId: testCompanyId,
     description: "Customer cannot create",
     price: 99.99,
     category: "electronics",

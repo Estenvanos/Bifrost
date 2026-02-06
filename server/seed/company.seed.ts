@@ -19,85 +19,148 @@ const seedCompanies = async () => {
     // Cria empresas de teste
     const companies = [
       {
-        company_name: "Tech Innovations Inc",
+        name: "Tech Innovations Inc",
+        slug: "tech-innovations-inc",
+        ownerId: "507f1f77bcf86cd799439011", // Placeholder - will need real user ID
         description: "Leading provider of innovative technology solutions for businesses worldwide",
-        contact_email: "contact@techinnovations.com",
-        website_url: "https://techinnovations.com",
-        phone_number: "+1-555-0100",
-        address: "123 Tech Boulevard, Silicon Valley, CA 94025",
-        is_active: true,
+        email: "contact@techinnovations.com",
+        phone: "+1-555-0100",
+        address: {
+          street: "123 Tech Boulevard",
+          city: "Silicon Valley",
+          state: "CA",
+          zipCode: "94025",
+          country: "USA"
+        },
+        status: "active",
       },
       {
-        company_name: "Global Electronics",
+        name: "Global Electronics",
+        slug: "global-electronics",
+        ownerId: "507f1f77bcf86cd799439011",
         description: "Premier supplier of consumer electronics and smart home devices",
-        contact_email: "info@globalelectronics.com",
-        website_url: "https://globalelectronics.com",
-        phone_number: "+1-555-0200",
-        address: "456 Electronics Ave, San Jose, CA 95134",
-        is_active: true,
+        email: "info@globalelectronics.com",
+        phone: "+1-555-0200",
+        address: {
+          street: "456 Electronics Ave",
+          city: "San Jose",
+          state: "CA",
+          zipCode: "95134",
+          country: "USA"
+        },
+        status: "active",
       },
       {
-        company_name: "Fashion Forward LLC",
+        name: "Fashion Forward LLC",
+        slug: "fashion-forward-llc",
+        ownerId: "507f1f77bcf86cd799439011",
         description: "Trendsetting fashion brand delivering style and quality since 2010",
-        contact_email: "hello@fashionforward.com",
-        website_url: "https://fashionforward.com",
-        phone_number: "+1-555-0300",
-        address: "789 Fashion Street, New York, NY 10001",
-        is_active: true,
+        email: "hello@fashionforward.com",
+        phone: "+1-555-0300",
+        address: {
+          street: "789 Fashion Street",
+          city: "New York",
+          state: "NY",
+          zipCode: "10001",
+          country: "USA"
+        },
+        status: "active",
       },
       {
-        company_name: "Home Essentials Co",
+        name: "Home Essentials Co",
+        slug: "home-essentials-co",
+        ownerId: "507f1f77bcf86cd799439011",
         description: "Your one-stop shop for quality home goods and appliances",
-        contact_email: "support@homeessentials.com",
-        website_url: "https://homeessentials.com",
-        phone_number: "+1-555-0400",
-        address: "321 Home Lane, Chicago, IL 60601",
-        is_active: true,
+        email: "support@homeessentials.com",
+        phone: "+1-555-0400",
+        address: {
+          street: "321 Home Lane",
+          city: "Chicago",
+          state: "IL",
+          zipCode: "60601",
+          country: "USA"
+        },
+        status: "active",
       },
       {
-        company_name: "Sports Performance Pro",
+        name: "Sports Performance Pro",
+        slug: "sports-performance-pro",
+        ownerId: "507f1f77bcf86cd799439011",
         description: "Professional sports equipment and athletic wear for champions",
-        contact_email: "team@sportsperformance.com",
-        website_url: "https://sportsperformance.com",
-        phone_number: "+1-555-0500",
-        address: "654 Athletic Way, Portland, OR 97204",
-        is_active: true,
+        email: "team@sportsperformance.com",
+        phone: "+1-555-0500",
+        address: {
+          street: "654 Athletic Way",
+          city: "Portland",
+          state: "OR",
+          zipCode: "97204",
+          country: "USA"
+        },
+        status: "active",
       },
       {
-        company_name: "Book Haven Publishers",
+        name: "Book Haven Publishers",
+        slug: "book-haven-publishers",
+        ownerId: "507f1f77bcf86cd799439011",
         description: "Publishing house dedicated to bringing great stories to life",
-        contact_email: "editors@bookhaven.com",
-        website_url: "https://bookhaven.com",
-        phone_number: "+1-555-0600",
-        address: "987 Literary Road, Boston, MA 02108",
-        is_active: true,
+        email: "editors@bookhaven.com",
+        phone: "+1-555-0600",
+        address: {
+          street: "987 Literary Road",
+          city: "Boston",
+          state: "MA",
+          zipCode: "02108",
+          country: "USA"
+        },
+        status: "active",
       },
       {
-        company_name: "Green Living Supplies",
+        name: "Green Living Supplies",
+        slug: "green-living-supplies",
+        ownerId: "507f1f77bcf86cd799439011",
         description: "Eco-friendly products for sustainable living",
-        contact_email: "green@greenlivingsupplies.com",
-        website_url: "https://greenlivingsupplies.com",
-        phone_number: "+1-555-0700",
-        address: "135 Eco Street, Seattle, WA 98101",
-        is_active: true,
+        email: "green@greenlivingsupplies.com",
+        phone: "+1-555-0700",
+        address: {
+          street: "135 Eco Street",
+          city: "Seattle",
+          state: "WA",
+          zipCode: "98101",
+          country: "USA"
+        },
+        status: "active",
       },
       {
-        company_name: "Digital Solutions Labs",
+        name: "Digital Solutions Labs",
+        slug: "digital-solutions-labs",
+        ownerId: "507f1f77bcf86cd799439011",
         description: "Custom software development and IT consulting services",
-        contact_email: "solutions@digitallabs.com",
-        website_url: "https://digitallabs.com",
-        phone_number: "+1-555-0800",
-        address: "246 Innovation Drive, Austin, TX 78701",
-        is_active: true,
+        email: "solutions@digitallabs.com",
+        phone: "+1-555-0800",
+        address: {
+          street: "246 Innovation Drive",
+          city: "Austin",
+          state: "TX",
+          zipCode: "78701",
+          country: "USA"
+        },
+        status: "active",
       },
       {
-        company_name: "Startup Ventures (Inactive)",
+        name: "Startup Ventures (Inactive)",
+        slug: "startup-ventures-inactive",
+        ownerId: "507f1f77bcf86cd799439011",
         description: "Test company for inactive status",
-        contact_email: "old@startupventures.com",
-        website_url: "https://startupventures.com",
-        phone_number: "+1-555-0900",
-        address: "999 Legacy Lane, Miami, FL 33101",
-        is_active: false,
+        email: "old@startupventures.com",
+        phone: "+1-555-0900",
+        address: {
+          street: "999 Legacy Lane",
+          city: "Miami",
+          state: "FL",
+          zipCode: "33101",
+          country: "USA"
+        },
+        status: "suspended",
       },
     ];
 
@@ -108,15 +171,14 @@ const seedCompanies = async () => {
     // Mostra as empresas criadas
     console.log("\n🏢 Empresas criadas:");
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    
+
     createdCompanies.forEach((company) => {
-      const statusIcon = company.is_active ? "✅" : "❌";
+      const statusIcon = company.status === "active" ? "✅" : "❌";
       console.log(`
-${statusIcon} ${company.company_name}
-   Email: ${company.contact_email}
-   Website: ${company.website_url || "N/A"}
-   Phone: ${company.phone_number || "N/A"}
-   Status: ${company.is_active ? "Active" : "Inactive"}
+${statusIcon} ${company.name}
+   Email: ${company.email}
+   Phone: ${company.phone || "N/A"}
+   Status: ${company.status}
    ID: ${company._id}
       `);
     });

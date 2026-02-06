@@ -63,7 +63,7 @@ async function testTechOwnerCreateProduct(): Promise<void> {
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
   const product = {
-    product_name: "iPhone 15 Pro",
+    name: "iPhone 15 Pro",
     description: "Latest Apple smartphone",
     price: 1199.99,
     category: "electronics",
@@ -82,8 +82,8 @@ async function testTechOwnerCreateProduct(): Promise<void> {
   const data: ProductResponse = await response.json();
   console.log(`Status: ${response.status}`);
   console.log(`Success: ${data.success}`);
-  console.log(`Product: ${data.data?.product?.product_name}`);
-  console.log(`Company: ${data.data?.product?.company_id}`);
+  console.log(`Product: ${data.data?.product?.name}`);
+  console.log(`Company: ${data.data?.product?.companyId}`);
 
   if (!response.ok || !data.success) {
     throw new Error("Tech owner should be able to create products");
@@ -101,7 +101,7 @@ async function testFashionOwnerCreateProduct(): Promise<void> {
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
   const product = {
-    product_name: "Designer Handbag",
+    name: "Designer Handbag",
     description: "Luxury leather handbag",
     price: 499.99,
     category: "fashion",
@@ -120,7 +120,7 @@ async function testFashionOwnerCreateProduct(): Promise<void> {
   const data: ProductResponse = await response.json();
   console.log(`Status: ${response.status}`);
   console.log(`Success: ${data.success}`);
-  console.log(`Product: ${data.data?.product?.product_name}`);
+  console.log(`Product: ${data.data?.product?.name}`);
 
   if (!response.ok || !data.success) {
     throw new Error("Fashion owner should be able to create products");
@@ -138,7 +138,7 @@ async function testCustomerCreateProduct(): Promise<void> {
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
   const product = {
-    product_name: "Unauthorized Product",
+    name: "Unauthorized Product",
     description: "Should not be created",
     price: 99.99,
     category: "other",
