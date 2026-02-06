@@ -6,8 +6,7 @@ import mongoose from "mongoose";
 
 /**
  * Cria um novo produto
- * Apenas admins com company_id podem criar produtos
- * Produtos são automaticamente vinculados à empresa do usuário
+ * Apenas admins/vendors com companyId podem criar produtos
  */
 export const createProduct = async (
   req: AuthRequest,
@@ -22,9 +21,9 @@ export const createProduct = async (
       return;
     }
 
-    // Busca o usuário para pegar o company_id
+    // Busca o usuário para pegar o companyId
     const user = await User.findById(req.user.userId);
-    
+
     if (!user) {
       res.status(404).json({
         success: false,
@@ -34,7 +33,7 @@ export const createProduct = async (
     }
 
     // Verifica se o usuário tem uma empresa vinculada
-    if (!user.company_id) {
+    if (!user.companyId) {
       res.status(403).json({
         success: false,
         message: "Você precisa estar vinculado a uma empresa para criar produtos",
@@ -42,13 +41,25 @@ export const createProduct = async (
       return;
     }
 
-    const { product_name, description, image_url, price, category, tags } = req.body;
+    const {
+      name,
+      // legacy support or map input
+      product_name,
+      description,
+      image_url, // simple input
+      images, // array input
+      price,
+      category,
+      tags
+    } = req.body;
+
+    const productName = name || product_name;
 
     // Validação de campos obrigatórios
-    if (!product_name || !description || !price || !category) {
+    if (!productName || !description || !price || !category) {
       res.status(400).json({
         success: false,
-        message: "Campos obrigatórios: product_name, description, price, category",
+        message: "Campos obrigatórios: name (or product_name), description, price, category",
       });
       return;
     }
@@ -62,17 +73,29 @@ export const createProduct = async (
       return;
     }
 
-    // Cria o produto com o company_id do usuário
+    // Prepare images
+    let productImages: any[] = [];
+    if (images && Array.isArray(images)) {
+      productImages = images;
+    } else if (image_url) {
+      productImages = [{ url: image_url, isPrimary: true }];
+    }
+
+    // Generate slug
+    const slug = productName.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Date.now();
+
+    // Cria o produto com o companyId do usuário
     const newProduct = await Product.create({
-      product_name: product_name.trim(),
-      company_id: user.company_id.toString(),
+      name: productName.trim(),
+      slug,
+      companyId: user.companyId,
       description: description.trim(),
-      image_url: image_url?.trim() || undefined,
+      images: productImages,
       price,
       category: category.trim(),
       tags: tags || [],
-      rating: 0,
-      review_count: 0,
+      ratings: { average: 0, count: 0 },
+      status: 'active'
     });
 
     res.status(201).json({
@@ -93,7 +116,6 @@ export const createProduct = async (
 
 /**
  * Busca todos os produtos com paginação e filtros
- * Acesso público
  */
 export const getAllProducts = async (
   req: AuthRequest,
@@ -107,7 +129,7 @@ export const getAllProducts = async (
       tags,
       minPrice,
       maxPrice,
-      company_id,
+      companyId, // corrected query param
     } = req.query;
 
     const pageNum = parseInt(page as string);
@@ -131,8 +153,8 @@ export const getAllProducts = async (
       if (maxPrice) filter.price.$lte = parseFloat(maxPrice as string);
     }
 
-    if (company_id) {
-      filter.company_id = company_id;
+    if (companyId) {
+      filter.companyId = companyId;
     }
 
     // Busca os produtos
@@ -166,7 +188,6 @@ export const getAllProducts = async (
 
 /**
  * Busca um produto por ID
- * Acesso público
  */
 export const getProductById = async (
   req: AuthRequest,
@@ -212,7 +233,6 @@ export const getProductById = async (
 
 /**
  * Atualiza um produto
- * Apenas admin da mesma empresa pode atualizar
  */
 export const updateProduct = async (
   req: AuthRequest,
@@ -240,10 +260,10 @@ export const updateProduct = async (
       return;
     }
 
-    // Busca o usuário para verificar company_id
+    // Busca o usuário para verificar companyId
     const user = await User.findById(req.user.userId);
-    
-    if (!user || !user.company_id) {
+
+    if (!user || !user.companyId) {
       res.status(403).json({
         success: false,
         message: "Você não está vinculado a nenhuma empresa",
@@ -252,7 +272,7 @@ export const updateProduct = async (
     }
 
     // Busca o produto
-    const product = await Product.findById(parsedId);
+    const product = await Product.findById(parsedId) as ProductDoc;
 
     if (!product) {
       res.status(404).json({
@@ -262,8 +282,8 @@ export const updateProduct = async (
       return;
     }
 
-    // Verifica se o produto pertence à empresa do usuário (FIX: convert to strings)
-    if (product.company_id !== user.company_id.toString()) {
+    // Verifica se o produto pertence à empresa do usuário
+    if (product.companyId.toString() !== user.companyId.toString()) {
       res.status(403).json({
         success: false,
         message: "Você só pode atualizar produtos da sua própria empresa",
@@ -273,13 +293,10 @@ export const updateProduct = async (
 
     // Remove campos que não devem ser atualizados
     delete updateData._id;
-    delete updateData.company_id; // Não permite trocar de empresa
+    delete updateData.companyId;
     delete updateData.createdAt;
     delete updateData.updatedAt;
-    delete updateData.rating;
-    delete updateData.review_count;
-    delete updateData.vector;
-    delete updateData.vector_version;
+    delete updateData.ratings; // ratings managed separately?
 
     // Valida o preço se fornecido
     if (updateData.price !== undefined && updateData.price <= 0) {
@@ -291,12 +308,14 @@ export const updateProduct = async (
     }
 
     // Sanitiza strings
-    if (updateData.product_name) updateData.product_name = updateData.product_name.trim();
+    if (updateData.product_name) {
+      updateData.name = updateData.product_name.trim();
+      delete updateData.product_name;
+    }
+    if (updateData.name) updateData.name = updateData.name.trim();
     if (updateData.description) updateData.description = updateData.description.trim();
     if (updateData.category) updateData.category = updateData.category.trim();
-    if (updateData.image_url) updateData.image_url = updateData.image_url.trim();
 
-    // FIX: Use findByIdAndUpdate instead of updateOne
     const updatedProduct = await Product.findByIdAndUpdate(
       parsedId,
       { $set: updateData },
@@ -321,7 +340,6 @@ export const updateProduct = async (
 
 /**
  * Deleta um produto
- * Apenas admin da mesma empresa pode deletar
  */
 export const deleteProduct = async (
   req: AuthRequest,
@@ -339,7 +357,6 @@ export const deleteProduct = async (
     const { id } = req.params;
     const parsedId: string = Array.isArray(id) ? id[0] : id;
 
-    // Valida se o ID é válido
     if (!mongoose.Types.ObjectId.isValid(parsedId)) {
       res.status(400).json({
         success: false,
@@ -348,10 +365,9 @@ export const deleteProduct = async (
       return;
     }
 
-    // Busca o usuário para verificar company_id
     const user = await User.findById(req.user.userId);
-    
-    if (!user || !user.company_id) {
+
+    if (!user || !user.companyId) {
       res.status(403).json({
         success: false,
         message: "Você não está vinculado a nenhuma empresa",
@@ -359,8 +375,7 @@ export const deleteProduct = async (
       return;
     }
 
-    // Busca o produto
-    const product = await Product.findById(parsedId);
+    const product = await Product.findById(parsedId) as ProductDoc;
 
     if (!product) {
       res.status(404).json({
@@ -370,8 +385,7 @@ export const deleteProduct = async (
       return;
     }
 
-    // Verifica se o produto pertence à empresa do usuário (FIX: convert to strings)
-    if (product.company_id !== user.company_id.toString()) {
+    if (product.companyId.toString() !== user.companyId.toString()) {
       res.status(403).json({
         success: false,
         message: "Você só pode deletar produtos da sua própria empresa",

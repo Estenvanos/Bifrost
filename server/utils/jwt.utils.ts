@@ -3,7 +3,7 @@ import jwt, { SignOptions } from "jsonwebtoken";
 interface JWTPayload {
   userId: string;
   email: string;
-  type: "customer" | "admin" | "owner";
+  role: "customer" | "vendor" | "admin";
 }
 
 interface TokenPair {
@@ -25,11 +25,11 @@ export const generateTokenPair = (payload: JWTPayload): TokenPair => {
   }
 
   const accessTokenOptions: SignOptions = {
-    expiresIn: JWT_EXPIRES_IN,
+    expiresIn: JWT_EXPIRES_IN as any,
   };
 
   const refreshTokenOptions: SignOptions = {
-    expiresIn: JWT_REFRESH_EXPIRES_IN,
+    expiresIn: JWT_REFRESH_EXPIRES_IN as any,
   };
 
   const accessToken = jwt.sign(payload, JWT_SECRET, accessTokenOptions);
@@ -48,7 +48,7 @@ export const generateTokenPair = (payload: JWTPayload): TokenPair => {
  */
 export const verifyAccessToken = (token: string): JWTPayload => {
   const JWT_SECRET = process.env.JWT_SECRET;
-  
+
   if (!JWT_SECRET) {
     throw new Error("JWT_SECRET must be defined in environment variables");
   }
@@ -65,7 +65,7 @@ export const verifyAccessToken = (token: string): JWTPayload => {
  */
 export const verifyRefreshToken = (token: string): { userId: string } => {
   const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
-  
+
   if (!JWT_REFRESH_SECRET) {
     throw new Error("JWT_REFRESH_SECRET must be defined in environment variables");
   }

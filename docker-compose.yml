@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - bifrost-network
+      # develop:
+      # watch:
+      # - action: sync
+      # path: ./frontend
+      # target: /app
+
+      # Backend API
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT:-5000}:5000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URI=${MONGODB_URI}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN}
+      - BCRYPT_ROUNDS=${BCRYPT_ROUNDS}
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    networks:
+      - bifrost-network
+
+  # MongoDB
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=${MONGODB_DATABASE}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - bifrost-network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - bifrost-network
+
+networks:
+  bifrost-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  redis_data:

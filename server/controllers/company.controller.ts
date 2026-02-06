@@ -3,16 +3,12 @@ import { Company, CompanyDoc } from "../models/Company";
 import { User, UserDoc } from "../models/User";
 import { AuthRequest } from "../middleware/auth.middleware";
 import { hashPassword, validatePasswordStrength } from "../utils/password.utils";
-import { validateEmail, validateUsername } from "../utils/validation.utils";
+import { validateEmail } from "../utils/validation.utils";
 import { generateTokenPair } from "../utils/jwt.utils";
 import mongoose from "mongoose";
 
 /**
  * Cria uma nova empresa
- * 
- * Lógica especial:
- * 1. Se há usuário logado: cria empresa e promove usuário a admin
- * 2. Se não há usuário: cria usuário admin primeiro, depois cria empresa
  */
 export const createCompany = async (
   req: AuthRequest,
@@ -20,30 +16,38 @@ export const createCompany = async (
 ): Promise<void> => {
   try {
     const {
-      company_name,
+      name,
       description,
-      website_url,
       logo_url,
-      contact_email,
+      email: contact_email, // Map req.body.contact_email or email? Let's assume input matches form or adjust.
+      // Based on previous code, input was company_name, contact_email.
+      // Let's accept both for compatibility or stick to new schema.
+      // Let's map from old input names to new schema if needed, or update input expectation.
+      // Input: company_name, description, contact_email...
+      company_name,
       address,
       phone_number,
-      // Campos para criação de usuário (se não houver usuário logado)
+      // User creation
       email,
       password,
-      username,
+      firstName,
+      lastName
     } = req.body;
 
+    const companyName = name || company_name;
+    const companyEmail = contact_email || req.body.contact_email;
+
     // Validação de campos obrigatórios da empresa
-    if (!company_name || !description || !contact_email) {
+    if (!companyName || !description || !companyEmail) {
       res.status(400).json({
         success: false,
-        message: "Campos obrigatórios: company_name, description, contact_email",
+        message: "Campos obrigatórios: name (or company_name), description, email (or contact_email)",
       });
       return;
     }
 
     // Valida o email de contato da empresa
-    const contactEmailValidation = validateEmail(contact_email);
+    const contactEmailValidation = validateEmail(companyEmail);
     if (!contactEmailValidation.isValid) {
       res.status(400).json({
         success: false,
@@ -53,10 +57,10 @@ export const createCompany = async (
     }
 
     // Verifica se já existe empresa com esse email de contato
-    const existingCompany = await Company.findOne({ 
-      contact_email: contactEmailValidation.sanitized 
+    const existingCompany = await Company.findOne({
+      email: contactEmailValidation.sanitized
     });
-    
+
     if (existingCompany) {
       res.status(409).json({
         success: false,
@@ -73,10 +77,9 @@ export const createCompany = async (
     // Cenário 1: Usuário está logado
     if (req.user) {
       userId = req.user.userId;
-      
-      // Busca o usuário
+
       const user = await User.findById(userId) as UserDoc;
-      
+
       if (!user) {
         res.status(404).json({
           success: false,
@@ -85,42 +88,28 @@ export const createCompany = async (
         return;
       }
 
-      // Se o usuário não é admin, promove para admin
-      if (user.type !== "admin" && user.type !== "owner") {
-        await User.findByIdAndUpdate(userId, { type: "admin" });
+      if (user.role !== "admin" && user.role !== "vendor") {
+        await User.findByIdAndUpdate(userId, { role: "vendor" });
         wasPromotedToAdmin = true;
       }
 
       userResponse = {
         _id: user._id,
-        username: user.username,
         email: user.email,
-        type: "admin",
+        role: user.role === "customer" ? "vendor" : user.role,
         wasPromotedToAdmin,
       };
-    } 
-    // Cenário 2: Não há usuário logado - cria novo usuário admin
+    }
+    // Cenário 2: Não há usuário logado - cria novo usuário
     else {
-      // Valida campos obrigatórios para criação de usuário
-      if (!email || !password || !username) {
+      if (!email || !password) {
         res.status(400).json({
           success: false,
-          message: "Para criar empresa sem login, forneça: email, password, username",
+          message: "Para criar empresa sem login, forneça: email, password",
         });
         return;
       }
 
-      // Valida username
-      const usernameValidation = validateUsername(username);
-      if (!usernameValidation.isValid) {
-        res.status(400).json({
-          success: false,
-          message: usernameValidation.error,
-        });
-        return;
-      }
-
-      // Valida email do novo usuário
       const emailValidation = validateEmail(email);
       if (!emailValidation.isValid) {
         res.status(400).json({
@@ -130,7 +119,6 @@ export const createCompany = async (
         return;
       }
 
-      // Valida força da senha
       const passwordValidation = validatePasswordStrength(password);
       if (!passwordValidation.isValid) {
         res.status(400).json({
@@ -141,11 +129,10 @@ export const createCompany = async (
         return;
       }
 
-      // Verifica se o email já existe
-      const existingUser = await User.findOne({ 
-        email: emailValidation.sanitized 
+      const existingUser = await User.findOne({
+        email: emailValidation.sanitized
       });
-      
+
       if (existingUser) {
         res.status(409).json({
           success: false,
@@ -154,57 +141,55 @@ export const createCompany = async (
         return;
       }
 
-      // Hash da senha
       const hashedPassword = await hashPassword(password);
 
-      // Cria o usuário admin
       const newUser = await User.create({
-        username: usernameValidation.sanitized,
         email: emailValidation.sanitized,
         password: hashedPassword,
-        type: "admin",
+        role: "vendor",
+        firstName,
+        lastName
       });
 
       userId = newUser._id.toString();
 
-      // Gera tokens para o novo usuário
       tokens = generateTokenPair({
         userId: newUser._id.toString(),
         email: newUser.email,
-        type: newUser.type,
+        role: newUser.role,
       });
 
       userResponse = {
         _id: newUser._id,
-        username: newUser.username,
         email: newUser.email,
-        type: newUser.type,
+        role: newUser.role,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
         createdAt: newUser.createdAt,
       };
     }
 
-    // Cria a empresa com owner_user_id
+    // Cria a empresa
     const newCompany = await Company.create({
-      company_name: company_name.trim(),
-      owner_user_id: userId,
+      name: companyName.trim(),
+      slug: companyName.trim().toLowerCase().replace(/[^a-z0-9]/g, '-'),
+      ownerId: userId,
       description: description.trim(),
-      website_url: website_url?.trim() || undefined,
-      logo_url: logo_url?.trim() || undefined,
-      contact_email: contactEmailValidation.sanitized,
-      address: address?.trim() || undefined,
-      phone_number: phone_number?.trim() || undefined,
-      is_active: true,
+      email: contactEmailValidation.sanitized,
+      logo: { url: logo_url },
+      address: { street: address },
+      phone: phone_number,
+      status: 'pending'
     });
 
-    // Vincula a empresa ao usuário (bi-directional relationship)
-    await User.findByIdAndUpdate(userId, { company_id: newCompany._id });
+    // Vincula a empresa ao usuário
+    await User.findByIdAndUpdate(userId, { companyId: newCompany._id });
 
     const responseData: any = {
       company: newCompany,
       user: userResponse,
     };
 
-    // Se foi criado novo usuário, adiciona os tokens
     if (tokens) {
       responseData.accessToken = tokens.accessToken;
       responseData.refreshToken = tokens.refreshToken;
@@ -212,8 +197,8 @@ export const createCompany = async (
 
     res.status(201).json({
       success: true,
-      message: tokens 
-        ? "Empresa e usuário admin criados com sucesso" 
+      message: tokens
+        ? "Empresa e usuário vendedor criados com sucesso"
         : "Empresa criada com sucesso",
       data: responseData,
     });
@@ -237,21 +222,19 @@ export const getAllCompanies = async (
     const {
       page = "1",
       limit = "10",
-      is_active,
+      status, // changed from is_active to status
     } = req.query;
 
     const pageNum = parseInt(page as string);
     const limitNum = parseInt(limit as string);
     const skip = (pageNum - 1) * limitNum;
 
-    // Constrói o filtro
     const filter: any = {};
 
-    if (is_active !== undefined) {
-      filter.is_active = is_active === "true";
+    if (status) {
+      filter.status = status;
     }
 
-    // Busca as empresas
     const companies = await Company.find(filter)
       .skip(skip)
       .limit(limitNum)
@@ -291,7 +274,6 @@ export const getCompanyById = async (
     const { id } = req.params;
     const parsedId: string = Array.isArray(id) ? id[0] : id;
 
-    // Valida se o ID é válido
     if (!mongoose.Types.ObjectId.isValid(parsedId)) {
       res.status(400).json({
         success: false,
@@ -326,7 +308,7 @@ export const getCompanyById = async (
 };
 
 /**
- * Atualiza uma empresa (apenas admin)
+ * Atualiza uma empresa (apenas admin ou dono)
  */
 export const updateCompany = async (
   req: AuthRequest,
@@ -337,7 +319,6 @@ export const updateCompany = async (
     const updateData = req.body;
     const parsedId = Array.isArray(id) ? id[0] : id;
 
-    // Valida se o ID é válido
     if (!mongoose.Types.ObjectId.isValid(parsedId)) {
       res.status(400).json({
         success: false,
@@ -346,32 +327,26 @@ export const updateCompany = async (
       return;
     }
 
-    // Remove campos que não devem ser atualizados diretamente
+    // Remove protected fields
     delete updateData._id;
-    delete updateData.owner_user_id;
+    delete updateData.ownerId;
     delete updateData.createdAt;
     delete updateData.updatedAt;
 
-    // Valida email de contato se fornecido
-    if (updateData.contact_email) {
-      const emailValidation = validateEmail(updateData.contact_email);
+    if (updateData.email) {
+      const emailValidation = validateEmail(updateData.email);
       if (!emailValidation.isValid) {
         res.status(400).json({
           success: false,
-          message: `Email de contato inválido: ${emailValidation.error}`,
+          message: `Email inválido: ${emailValidation.error}`,
         });
         return;
       }
-      updateData.contact_email = emailValidation.sanitized;
+      updateData.email = emailValidation.sanitized;
     }
 
-    // Sanitiza strings
-    if (updateData.company_name) updateData.company_name = updateData.company_name.trim();
+    if (updateData.name) updateData.name = updateData.name.trim();
     if (updateData.description) updateData.description = updateData.description.trim();
-    if (updateData.website_url) updateData.website_url = updateData.website_url.trim();
-    if (updateData.logo_url) updateData.logo_url = updateData.logo_url.trim();
-    if (updateData.address) updateData.address = updateData.address.trim();
-    if (updateData.phone_number) updateData.phone_number = updateData.phone_number.trim();
 
     const updatedCompany = await Company.findByIdAndUpdate(
       parsedId,
@@ -414,7 +389,6 @@ export const deleteCompany = async (
     const { id } = req.params;
     const parsedId: string = Array.isArray(id) ? id[0] : id;
 
-    // Valida se o ID é válido
     if (!mongoose.Types.ObjectId.isValid(parsedId)) {
       res.status(400).json({
         success: false,

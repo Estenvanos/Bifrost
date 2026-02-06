@@ -6,7 +6,7 @@ export interface AuthRequest extends Request {
   user?: {
     userId: string;
     email: string;
-    type: "customer" | "admin" | "owner";
+    role: "customer" | "vendor" | "admin";
   };
 }
 
@@ -36,7 +36,7 @@ export const authenticate = async (
     req.user = {
       userId: decoded.userId,
       email: decoded.email,
-      type: decoded.type,
+      role: decoded.role,
     };
 
     next();
@@ -65,11 +65,12 @@ export const requireAdmin = async (
     return;
   }
 
-  // Aceita tanto admin quanto owner
-  if (req.user.type !== "admin" && req.user.type !== "owner") {
+  // Aceita tanto admin quanto vendor (vendor pode gerenciar seus produtos/empresa)
+  // TODO: Refinar permissões específicas se necessário
+  if (req.user.role !== "admin" && req.user.role !== "vendor") {
     res.status(403).json({
       success: false,
-      message: "Acesso negado. Apenas administradores podem acessar este recurso",
+      message: "Acesso negado. Apenas administradores ou vendedores podem acessar este recurso",
     });
     return;
   }
@@ -93,7 +94,7 @@ export const optionalAuthenticate = async (
       req.user = {
         userId: decoded.userId,
         email: decoded.email,
-        type: decoded.type,
+        role: decoded.role,
       };
     }
   } catch (error) {

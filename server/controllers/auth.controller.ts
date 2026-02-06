@@ -4,29 +4,28 @@ import { hashPassword, comparePassword, validatePasswordStrength } from "../util
 import { validateEmail, validateUsername } from "../utils/validation.utils";
 import { generateTokenPair, verifyRefreshToken } from "../utils/jwt.utils";
 import { AuthRequest } from "../middleware/auth.middleware";
+import { redis } from "../config/redis";
+import { env } from "../config/env";
+
+const REFRESH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: env.nodeEnv === "production",
+  sameSite: env.nodeEnv === "production" ? "strict" as const : "lax" as const,
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+};
 
 /**
  * Registra um novo usuário
  */
 export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { username, email, password, type } = req.body;
+    const { email, password, role, firstName, lastName } = req.body;
 
     // Validação de campos obrigatórios
-    if (!username || !email || !password) {
+    if (!email || !password) {
       res.status(400).json({
         success: false,
-        message: "Username, email e senha são obrigatórios",
-      });
-      return;
-    }
-
-    // Valida username
-    const usernameValidation = validateUsername(username);
-    if (!usernameValidation.isValid) {
-      res.status(400).json({
-        success: false,
-        message: usernameValidation.error,
+        message: "Email e senha são obrigatórios",
       });
       return;
     }
@@ -53,10 +52,10 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Verifica se o email já existe
-    const existingUser = await User.findOne({ 
-      email: emailValidation.sanitized 
+    const existingUser = await User.findOne({
+      email: emailValidation.sanitized
     });
-    
+
     if (existingUser) {
       res.status(409).json({
         success: false,
@@ -69,26 +68,35 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     const hashedPassword = await hashPassword(password);
 
     // Cria o usuário
+    // Default role is customer if not specified or invalid (handled by enum in schema, but good to be explicit)
     const newUser = await User.create({
-      username: usernameValidation.sanitized,
       email: emailValidation.sanitized,
       password: hashedPassword,
-      type: type === "owner" ? "owner" : "customer", // Por padrão é customer
+      role: role || "customer",
+      firstName,
+      lastName
     });
 
     // Gera tokens
     const tokens = generateTokenPair({
       userId: newUser._id.toString(),
       email: newUser.email,
-      type: newUser.type,
+      role: newUser.role,
     });
+
+    // Store refresh token in Redis
+    await redis.set(`session:${newUser._id}`, tokens.refreshToken, "EX", 7 * 24 * 60 * 60);
+
+    // Set refresh token cookie
+    res.cookie("refreshToken", tokens.refreshToken, REFRESH_COOKIE_OPTIONS);
 
     // Remove a senha da resposta
     const userResponse = {
       _id: newUser._id,
-      username: newUser.username,
       email: newUser.email,
-      type: newUser.type,
+      role: newUser.role,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
       createdAt: newUser.createdAt,
     };
 
@@ -97,7 +105,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       message: "Usuário criado com sucesso",
       data: {
         user: userResponse,
-        ...tokens,
+        accessToken: tokens.accessToken,
       },
     });
   } catch (error) {
@@ -136,8 +144,8 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Busca o usuário
-    const user = await User.findOne({ 
-      email: emailValidation.sanitized 
+    const user = await User.findOne({
+      email: emailValidation.sanitized
     }) as UserDoc;
 
     if (!user) {
@@ -163,15 +171,22 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
     const tokens = generateTokenPair({
       userId: user._id.toString(),
       email: user.email,
-      type: user.type,
+      role: user.role,
     });
+
+    // Store refresh token in Redis
+    await redis.set(`session:${user._id}`, tokens.refreshToken, "EX", 7 * 24 * 60 * 60);
+
+    // Set refresh token cookie
+    res.cookie("refreshToken", tokens.refreshToken, REFRESH_COOKIE_OPTIONS);
 
     // Remove a senha da resposta
     const userResponse = {
       _id: user._id,
-      username: user.username,
       email: user.email,
-      type: user.type,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
       createdAt: user.createdAt,
     };
 
@@ -180,7 +195,7 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
       message: "Login realizado com sucesso",
       data: {
         user: userResponse,
-        ...tokens,
+        accessToken: tokens.accessToken,
       },
     });
   } catch (error) {
@@ -235,7 +250,7 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
  */
 export const refreshToken = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
     if (!refreshToken) {
       res.status(400).json({
@@ -245,8 +260,20 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    // Verifica o refresh token
+    // Verifica o refresh token JWT
     const decoded = verifyRefreshToken(refreshToken);
+
+    // Verifica se o token está no Redis (sessão ativa)
+    const storedToken = await redis.get(`session:${decoded.userId}`);
+    // Optional: Check if storedToken matches incoming token to detect theft?
+    // For now, simple presence check + valid JWT.
+    if (!storedToken) {
+      res.status(401).json({
+        success: false,
+        message: "Sessão expirada",
+      });
+      return;
+    }
 
     // Busca o usuário
     const user = await User.findById(decoded.userId) as UserDoc;
@@ -263,13 +290,19 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
     const tokens = generateTokenPair({
       userId: user._id.toString(),
       email: user.email,
-      type: user.type,
+      role: user.role,
     });
+
+    // Rotate refresh token in Redis
+    await redis.set(`session:${user._id}`, tokens.refreshToken, "EX", 7 * 24 * 60 * 60);
+
+    // Set cookie
+    res.cookie("refreshToken", tokens.refreshToken, REFRESH_COOKIE_OPTIONS);
 
     res.status(200).json({
       success: true,
       message: "Token atualizado com sucesso",
-      data: tokens,
+      data: { accessToken: tokens.accessToken },
     });
   } catch (error) {
     console.error("Erro ao atualizar token:", error);
@@ -281,10 +314,16 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
 };
 
 /**
- * Faz logout do usuário (client-side - apenas retorna sucesso)
+ * Faz logout do usuário
  */
-export const logout = async (req: Request, res: Response): Promise<void> => {
+export const logout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    res.clearCookie("refreshToken");
+
+    if (req.user) {
+      await redis.del(`session:${req.user.userId}`);
+    }
+
     res.status(200).json({
       success: true,
       message: "Logout realizado com sucesso",
@@ -365,9 +404,13 @@ export const changePassword = async (
       password: hashedPassword,
     });
 
+    // Invalidate sessions
+    await redis.del(`session:${user._id}`);
+    res.clearCookie("refreshToken");
+
     res.status(200).json({
       success: true,
-      message: "Senha alterada com sucesso",
+      message: "Senha alterada com sucesso. Faça login novamente.",
     });
   } catch (error) {
     console.error("Erro ao alterar senha:", error);

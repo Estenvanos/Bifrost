@@ -2,32 +2,64 @@ import { model, models, Schema, Types } from "mongoose";
 
 const UserSchema = new Schema(
   {
-    username: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    type: { type: String, enum: ["customer", "admin", "owner"], default: "customer" },
+    email: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: true },
-    last_viewed_product_id: {
-      type: Types.ObjectId,
-      ref: "Product",
-      default: null,
+    firstName: { type: String },
+    lastName: { type: String },
+    role: {
+      type: String,
+      enum: ['customer', 'vendor', 'admin'],
+      default: 'customer',
+      index: true
     },
-    company_id: {
-      type: Types.ObjectId,
-      ref: "Company",
-      default: null,
+    phoneNumber: { type: String },
+    addresses: [{
+      street: String,
+      city: String,
+      state: String,
+      zipCode: String,
+      country: String,
+      isDefault: { type: Boolean, default: false }
+    }],
+    stripeCustomerId: { type: String },
+    companyId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Company',
+      index: true
     },
+    preferences: {
+      newsletter: { type: Boolean, default: false },
+      notifications: { type: Boolean, default: true }
+    },
+    lastLogin: { type: Date }
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export type UserDoc = {
   _id: string;
-  username: string;
   email: string;
-  type: "customer" | "admin" | "owner";
   password: string;
-  company_id: string | null;
-  last_viewed_product_id: string | null;
+  firstName?: string;
+  lastName?: string;
+  role: 'customer' | 'vendor' | 'admin';
+  phoneNumber?: string;
+  addresses: Array<{
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+    isDefault: boolean;
+    _id?: string;
+  }>;
+  stripeCustomerId?: string;
+  companyId?: string | Types.ObjectId;
+  preferences: {
+    newsletter: boolean;
+    notifications: boolean;
+  };
+  lastLogin?: Date;
   createdAt: Date;
   updatedAt: Date;
 };

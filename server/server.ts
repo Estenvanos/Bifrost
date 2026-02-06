@@ -5,6 +5,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes";
 import productRoutes from "./routes/product.routes";
 import companyRoutes from "./routes/company.routes";
@@ -22,7 +23,9 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:3000";
 app.use(helmet()); // Headers de segurança
 app.use(cors({
   origin: CORS_ORIGIN,
+  credentials: true, // Allow cookies
 }));
+app.use(cookieParser());
 app.use(express.json()); // Parse JSON
 app.use(express.urlencoded({ extended: true, limit: "10mb" })); // Parse URL-encoded
 app.use(apiLimiter); // Rate limiting global
@@ -63,7 +66,7 @@ const startServer = async () => {
   try {
     // Conecta ao MongoDB primeiro
     await connectToDB();
-    
+
     // Inicia o servidor Express
     app.listen(PORT, () => {
       console.log(`🚀 Servidor rodando na porta ${PORT}`);
