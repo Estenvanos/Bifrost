@@ -4,3 +4,5 @@
 # Ignorar variáveis de ambiente do backend
 server/.env
 .env
+
+server/.gemini
