@@ -54,7 +54,7 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_DATABASE=${MONGODB_DATABASE}
+      - MONGO_INITDB_DATABASE=${MONGODB_URI}
     volumes:
       - mongodb_data:/data/db
     networks:
